@@ -1,3 +1,5 @@
+from pathlib import Path
+import importlib
 from collections import UserString
 from abc import ABCMeta
 from typing import Tuple
@@ -67,9 +69,11 @@ class Domain:
                 print(type(attr))
                 if isinstance(attr, list):
                     objs_ = " ".join([str(obj) for obj in attr])
-                    objs.append(f"\t\t{objs_} - {attr[0].__class__.__name__.lower()}")
+                    objs.append(
+                        f"\t\t{objs_} - {attr[0].__class__.__name__.lower()}")
                 else:
-                    objs.append(f"\t\t{attr} - {attr.__class__.__name__.lower()}")
+                    objs.append(
+                        f"\t\t{attr} - {attr.__class__.__name__.lower()}")
 
         objs = "\n".join(objs)
         # objs = "\n".join([
@@ -125,8 +129,6 @@ def action(func) -> str:
 
         _, *varnames = func.__code__.co_varnames
         varnames = varnames[:func.__code__.co_argcount-1]
-
-
 
         params = [f"?{a} - {b[1].__name__.lower()}"
                   for a, b in zip(varnames, func.__annotations__.items())]
@@ -225,3 +227,19 @@ def create_type(name, Base=None):
         return type(name, (Base,), {"typ": "type"})
     else:
         return type(name, (UserString,), {"typ": "type"})
+
+
+def parse(filename):
+    p = Path(filename)
+    module = importlib.import_module(p.stem)
+
+    domain_name = [attr for attr in dir(module)
+                    if attr.endswith("Domain") and attr != "Domain"][0]
+    problem_name = [attr for attr in dir(module)
+                    if attr.endswith("Problem")][0]
+    Problem = getattr(module, domain_name)
+    Domain = getattr(module, problem_name)
+    domain = Domain()
+    problem = Problem()
+    problem.generate_domain_pddl()
+    problem.generate_problem_pddl()
