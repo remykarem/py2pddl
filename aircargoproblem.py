@@ -69,6 +69,3 @@ class AirCargoProblem(AirCargoDomain):
     goal = {
         "at": {(p1, north), (p2, south)}
     }
-
-    # pddl.compile(AirCargoProblem)
-    # pddl.parse(AirCargoProblem)
