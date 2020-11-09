@@ -1,6 +1,7 @@
 from collections import UserString
 from abc import ABCMeta
 from typing import Tuple
+import inspect
 
 
 class PDDLString(UserString):
@@ -118,22 +119,29 @@ def action(func) -> str:
         # Invoke function to invoke Python's argument checking
         precond, effect = func(*args, **kwargs)
 
+        print(inspect.signature(func))
+
         action_name = f"(:action {func.__name__}"
 
-        params = [f"?{a} - {b.__name__.lower()}"
-                  for a, b in func.__annotations__.items()]
+        _, *varnames = func.__code__.co_varnames
+        varnames = varnames[:func.__code__.co_argcount-1]
+
+
+
+        params = [f"?{a} - {b[1].__name__.lower()}"
+                  for a, b in zip(varnames, func.__annotations__.items())]
         params = " ".join(params)
         params = f"\t\t:parameters ({params})"
 
         if not isinstance(precond, list):
             precond = [precond]
         precond = [str(p.split(" | ")[1]) for p in precond]
-        precond = "\t\t:precondition " + " ".join(precond) + ")"
+        precond = "\t\t:precondition " + join(precond, " ")
 
         if not isinstance(effect, list):
             effect = [effect]
         effect = [str(e.split(" | ")[1]) for e in effect]
-        effect = "\t\t:effect " + " ".join(effect) + ")"
+        effect = "\t\t:effect " + join(effect, " ")
 
         action = [action_name, params, precond, effect, "\t)"]
         action = join(action, "\n", False)
@@ -192,7 +200,7 @@ def init(func) -> str:
     def wrapper(*args, **kwargs):
         init = func(*args, **kwargs)
         init = [str(g.split(" | ")[2]) for g in init]
-        init = f"(:init {join(init)})"
+        init = f"(:init {join(init, and_marker=False)})"
 
         return PDDLString(init)
 
