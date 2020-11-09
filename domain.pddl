@@ -8,16 +8,16 @@
 	)
 	(:predicates
 		(at ?agent - agent ?x - x ?y - y)
-		(is_occupied ?x - x ?y - y)
+		(occupied ?x - x ?y - y)
 	)
 	(:action forward
-		:parameters ()
-		:precondition (at ?agent ?x_old ?y) (not (is_occupied ?x_new ?y)))
-		:effect (not (at ?agent ?x_old ?y)) (at ?agent ?x_new ?y))
+		:parameters (?agent - agent ?xold - x ?y - y ?xnew - x)
+		:precondition (and (at ?agent ?xold ?y) (not (occupied ?xnew ?y)))
+		:effect (and (not (at ?agent ?xold ?y)) (at ?agent ?xnew ?y))
 	)
 	(:action up
-		:parameters ()
-		:precondition (at ?agent ?x_old ?y_old) (not (is_occupied ?x_new ?y_new)))
-		:effect (not (at ?agent ?x_old ?y_old)) (at ?agent ?x_new ?y_new))
+		:parameters (?agent - agent ?xold - x ?yold - y ?xnew - x ?ynew - y)
+		:precondition (and (at ?agent ?xold ?yold) (not (occupied ?xnew ?ynew)))
+		:effect (and (not (at ?agent ?xold ?yold)) (at ?agent ?xnew ?ynew))
 	)
 )
