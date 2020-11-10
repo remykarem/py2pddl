@@ -9,11 +9,23 @@ As a user, I want to be able to
 * be warned with type checking while parsing
 * not have any silly errors in the generated pddl file
 
+---
+
+* [Requirements](##requirements)
+* [Sample](##sample)
+
+## Requirements
+
+* Python 3.6
+* fire (`pip install fire`)
+
+## Sample
+
 Here is a sample Air Cargo problem:
 
 ![aircargoproblem.png](aircargoproblem.png)
 
-## Defining the domain
+### Defining the domain
 
 In `flying.py`,
 
@@ -68,7 +80,7 @@ class AirCargoDomain(Domain):
         return precond, effect
 ```
 
-## Defining the problem
+### Defining the problem
 
 In `flying.py`,
 
@@ -101,13 +113,10 @@ class AirCargoProblem(AirCargoDomain):
         return [self.at("C1", "JFK"), self.at("C2", "SFO")]
 ```
 
-To generate the PDDL files
+To generate the PDDL files, run
 
-```python
-from flying import AirCargoProblem
-p = AirCargoProblem()
-p.generate_domain_pddl()
-p.generate_problem_pddl()
+```text
+python -m py2pddl flying.py
 ```
 
 Here is the generated `domain.pddl` file.
