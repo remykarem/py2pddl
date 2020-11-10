@@ -1,11 +1,11 @@
 (define
 	(problem grid_world)
-	(:domain grid_world)
+	(:domain somedomain)
 	(:objects
-		agent1 - agent
-		x0 x1 - x
-		y0 y1 - y
+		SFO JFK - airport
+		C1 C2 - cargo
+		P1 P2 - plane
 	)
-	(:init (at agent1 x0 y0) (occupied x0 y1))
-	(:goal (at agent1 x1 y1))
+	(:init (at C1 SFO) (at C2 JFK) (at P1 SFO))
+	(:goal (and (at C1 JFK) (at C2 SFO)))
 )

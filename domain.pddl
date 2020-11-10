@@ -2,22 +2,27 @@
 	(domain grid_world)
 	(:requirements :strips :typing)
 	(:types
-		agent
-		x
-		y
+		airport
+		cargo
+		plane
 	)
 	(:predicates
-		(at ?agent - agent ?x - x ?y - y)
-		(occupied ?x - x ?y - y)
+		(at ?c - cargo ?p - plane)
+		(in_ ?c - cargo ?p - plane)
 	)
-	(:action forward
-		:parameters (?agent - agent ?xold - x ?y - y ?xnew - x)
-		:precondition (and (at ?agent ?xold ?y) (not (occupied ?xnew ?y)))
-		:effect (and (not (at ?agent ?xold ?y)) (at ?agent ?xnew ?y))
+	(:action fly
+		:parameters (?p - plane ?orig - airport ?dest - airport)
+		:precondition (at ?p ?orig)
+		:effect (and (not (at ?p ?orig)) (at ?p ?dest))
 	)
-	(:action up
-		:parameters (?agent - agent ?xold - x ?yold - y ?xnew - x ?ynew - y)
-		:precondition (and (at ?agent ?xold ?yold) (not (occupied ?xnew ?ynew)))
-		:effect (and (not (at ?agent ?xold ?yold)) (at ?agent ?xnew ?ynew))
+	(:action load
+		:parameters (?c - cargo ?p - plane ?a - airport)
+		:precondition (and (at ?c ?a) (at ?p ?a))
+		:effect (and (not (at ?c ?a)) (in_ ?c ?p))
+	)
+	(:action unload
+		:parameters (?c - cargo ?p - plane ?a - airport)
+		:precondition (and (in_ ?c ?p) (at ?p ?a))
+		:effect (and (at ?c ?a) (not (in_ ?c ?p)))
 	)
 )
