@@ -159,7 +159,7 @@ And here is the generated `problem.pddl` file.
 )
 ```
 
-Then use your favourite planner like [Fast Downward](Fast Downward).
+Then use your favourite planner like [Fast Downward](https://github.com/aibasel/downward).
 To output a plan. Here's the plan generated from the above PDDL:
 
 ```text
