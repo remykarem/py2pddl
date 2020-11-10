@@ -66,7 +66,6 @@ class Domain:
                 getattr(self, attr).typ == "type" and
                     hasattr(getattr(self, attr), "data") or isinstance(getattr(self, attr), list)):
                 attr = getattr(self, attr)
-                print(type(attr))
                 if isinstance(attr, list):
                     objs_ = " ".join([str(obj) for obj in attr])
                     objs.append(
@@ -122,8 +121,6 @@ def action(func) -> str:
     def wrapper(*args, **kwargs):
         # Invoke function to invoke Python's argument checking
         precond, effect = func(*args, **kwargs)
-
-        print(inspect.signature(func))
 
         action_name = f"(:action {func.__name__}"
 
