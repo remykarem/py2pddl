@@ -1,5 +1,8 @@
 # py2pddl (Python to PDDL)
 
+Write your planning task in Python classes, then translate
+them to PDDL files.
+
 Design:
 
 As a user, I want to be able to
