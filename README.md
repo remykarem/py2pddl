@@ -9,6 +9,10 @@ As a user, I want to be able to
 * be warned with type checking while parsing
 * not have any silly errors in the generated pddl file
 
+Here is a sample Air Cargo problem:
+
+![aircargoproblem.png](aircargoproblem.png)
+
 ## Defining the domain
 
 In `flying.py`,
