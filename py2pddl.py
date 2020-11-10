@@ -48,11 +48,11 @@ class Domain:
             f.write(str(pddl))
 
     @staticmethod
-    def _generate_header(name="grid_world"):
+    def _generate_header(name="somedomain"):
         return f"(define\n\t(domain {name})"
 
     @staticmethod
-    def _generate_header_prob(name="grid_world"):
+    def _generate_header_prob(name="someproblem"):
         return f"(define\n\t(problem {name})"
 
     @staticmethod

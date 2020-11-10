@@ -1,5 +1,5 @@
 (define
-	(problem grid_world)
+	(problem someproblem)
 	(:domain somedomain)
 	(:objects
 		SFO JFK - airport

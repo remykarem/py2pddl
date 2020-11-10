@@ -1,5 +1,5 @@
 (define
-	(domain grid_world)
+	(domain somedomain)
 	(:requirements :strips :typing)
 	(:types
 		airport

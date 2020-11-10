@@ -114,7 +114,7 @@ Here is the generated `domain.pddl` file.
 
 ```text
 (define
-	(domain grid_world)
+	(domain somedomain)
 	(:requirements :strips :typing)
 	(:types
 		airport
@@ -147,7 +147,7 @@ And here is the generated `problem.pddl` file.
 
 ```text
 (define
-	(problem grid_world)
+	(problem someproblem)
 	(:domain somedomain)
 	(:objects
 		SFO JFK - airport
@@ -157,4 +157,17 @@ And here is the generated `problem.pddl` file.
 	(:init (at C1 SFO) (at C2 JFK) (at P1 SFO))
 	(:goal (and (at C1 JFK) (at C2 SFO)))
 )
+```
+
+Then use your favourite planner like [Fast Downward](Fast Downward).
+To output a plan. Here's the plan generated from the above PDDL:
+
+```text
+(load c1 p1 sfo)
+(fly p1 sfo jfk)
+(load c2 p1 jfk)
+(unload c1 p1 jfk)
+(fly p1 jfk sfo)
+(unload c2 p1 sfo)
+; cost = 6 (unit cost)
 ```
