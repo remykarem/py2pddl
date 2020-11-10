@@ -180,3 +180,5 @@ To output a plan. Here's the plan generated from the above PDDL:
 (unload c2 p1 sfo)
 ; cost = 6 (unit cost)
 ```
+
+See more examples in the `pddl/` folder.
