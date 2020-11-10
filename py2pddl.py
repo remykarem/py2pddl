@@ -38,13 +38,21 @@ class Domain:
             f.write(str(pddl))
             print(f"Domain PDDL written to {filename}.")
 
-    def generate_problem_pddl(self, filename="problem"):
+    def generate_problem_pddl(self,
+                              init: dict = None,
+                              goal: dict = None,
+                              filename: str = "problem"):
+        if init is None:
+            init = {}
+        if goal is None:
+            goal = {}
         filename = filename + ".pddl"
+
         hder = Domain._generate_header_prob()
         domain = "\t" + "(:domain somedomain)"
         objs = self._generate_objects()
-        inits = "\t" + self.init()
-        goals = "\t" + self.goal()
+        inits = "\t" + self.init(**init)
+        goals = "\t" + self.goal(**goal)
 
         pddl = join([hder, domain, objs, inits, goals, ")\n"],
                     "\n", and_marker=False)
