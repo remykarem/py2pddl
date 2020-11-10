@@ -112,7 +112,7 @@ class AirCargoProblem(AirCargoDomain):
         return at
 
     @goal
-    def goal(self):
+    def goal(self, cargo="C1"):
         return [self.at("C1", "JFK"), self.at("C2", "SFO")]
 ```
 
@@ -120,6 +120,27 @@ To generate the PDDL files, run
 
 ```text
 python -m py2pddl flying.py
+```
+
+You can also import is as a module and generate the 2 files.
+You only need to import the Problem class, instantiate and
+generate the relevant files.
+
+```python
+from flying import GridCarProblem
+
+p = GridCarProblem()
+p.generate_domain_pddl()
+p.generate_problem_pddl()
+```
+
+If you want the problem PDDL to be more dynamic if you have
+changing inits and goals, you could use dictionaries and
+specify in the `init` or `goal` keyword argument.
+
+```python
+p.generate_problem_pddl(
+    goal={"cargo": "C2"})
 ```
 
 Here is the generated `domain.pddl` file.
