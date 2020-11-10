@@ -1,9 +1,10 @@
-from pathlib import Path
 import importlib
-from collections import UserString
 from abc import ABCMeta
-from typing import Tuple
-import inspect
+from pathlib import Path
+from functools import wraps
+from collections import UserString
+
+import fire
 
 
 class PDDLString(UserString):
@@ -24,7 +25,8 @@ class Domain:
     def goal(self):
         pass
 
-    def generate_domain_pddl(self, filename="domain.pddl"):
+    def generate_domain_pddl(self, filename="domain"):
+        filename = filename + ".pddl"
         hder = Domain._generate_header()
         reqs = Domain._generate_requirements()
         typs = self._generate_types()
@@ -34,8 +36,10 @@ class Domain:
         pddl = "\n".join([hder, reqs, typs, prds, acts, ")"])
         with open(filename, "w", encoding="utf-8") as f:
             f.write(str(pddl))
+            print(f"Domain PDDL written to {filename}.")
 
-    def generate_problem_pddl(self, filename="problem.pddl"):
+    def generate_problem_pddl(self, filename="problem"):
+        filename = filename + ".pddl"
         hder = Domain._generate_header_prob()
         domain = "\t" + "(:domain somedomain)"
         objs = self._generate_objects()
@@ -46,6 +50,7 @@ class Domain:
                     "\n", and_marker=False)
         with open(filename, "w", encoding="utf-8") as f:
             f.write(str(pddl))
+            print(f"Problem PDDL written to {filename}.")
 
     @staticmethod
     def _generate_header(name="somedomain"):
@@ -75,13 +80,6 @@ class Domain:
                         f"\t\t{attr} - {attr.__class__.__name__.lower()}")
 
         objs = "\n".join(objs)
-        # objs = "\n".join([
-        #     f"\t\t{attr.lower()}"
-        #     for attr in dir(self)
-        #     if (hasattr(getattr(self, attr), "typ") and
-        #     getattr(self, attr).typ == "type" and
-        #     hasattr(getattr(self, attr), "data") or isinstance(getattr(self, attr), list))
-        # ])
         return "\n".join(["\t(:objects", objs, "\t)"])
 
     def _generate_types(self):
@@ -117,7 +115,7 @@ class Domain:
 
 def action(func) -> str:
     """Must return a tuple of precond and effect"""
-
+    @wraps(func)
     def wrapper(*args, **kwargs):
         # Invoke function to invoke Python's argument checking
         precond, effect = func(*args, **kwargs)
@@ -148,12 +146,11 @@ def action(func) -> str:
         return action
 
     setattr(wrapper, "typ", "action")
-
     return wrapper
 
 
 def predicate(func) -> str:
-
+    @wraps(func)
     def wrapper(*args, **kwargs):
         """PDDL"""
         # Invoke function to invoke Python's argument checking
@@ -177,32 +174,27 @@ def predicate(func) -> str:
         return PDDLString(params) + " | " + PDDLString(params1) + " | " + PDDLString("(" + " ".join([func.__name__, *args]) + ")")
 
     setattr(wrapper, "typ", "predicate")
-
     return wrapper
 
 
 def goal(func) -> str:
-
+    @wraps(func)
     def wrapper(*args, **kwargs):
         goal = func(*args, **kwargs)
         goal = [str(g.split(" | ")[2]) for g in goal]
         goal = f"(:goal {join(goal)})"
-
         return PDDLString(goal)
-
     setattr(wrapper, "typ", "goal")
     return wrapper
 
 
 def init(func) -> str:
-
+    @wraps(func)
     def wrapper(*args, **kwargs):
         init = func(*args, **kwargs)
         init = [str(g.split(" | ")[2]) for g in init]
         init = f"(:init {join(init, and_marker=False)})"
-
         return PDDLString(init)
-
     setattr(wrapper, "typ", "init")
     return wrapper
 
@@ -226,17 +218,32 @@ def create_type(name, Base=None):
         return type(name, (UserString,), {"typ": "type"})
 
 
-def parse(filename):
-    p = Path(filename)
+def parse(infile: str,
+          domain="domain",
+          problem="problem"):
+    """Parse a Python module that contains both a Domain and Problem class
+    definitions
+
+    Args:
+        infile (str): Name of Python file containing both the Domain
+            and Problem class definitions.
+        domain (str, optional): Base name of domain PDDL file.
+            Defaults to "domain".
+        problem (str, optional): Base name of problem PDDL file.
+            Defaults to "problem".
+    """
+    # Import module
+    p = Path(infile)
     module = importlib.import_module(p.stem)
 
-    domain_name = [attr for attr in dir(module)
-                    if attr.endswith("Domain") and attr != "Domain"][0]
     problem_name = [attr for attr in dir(module)
                     if attr.endswith("Problem")][0]
-    Problem = getattr(module, domain_name)
-    Domain = getattr(module, problem_name)
-    domain = Domain()
-    problem = Problem()
-    problem.generate_domain_pddl()
-    problem.generate_problem_pddl()
+    Problem = getattr(module, problem_name)
+
+    p = Problem()
+    p.generate_domain_pddl(domain)
+    p.generate_problem_pddl(problem)
+
+
+if __name__ == "__main__":
+    fire.Fire(parse)
