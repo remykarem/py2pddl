@@ -1,3 +1,4 @@
+import inspect
 import importlib
 from abc import ABCMeta
 from pathlib import Path
@@ -25,7 +26,7 @@ class Domain:
     def goal(self):
         pass
 
-    def generate_domain_pddl(self, filename="domain"):
+    def generate_domain_pddl(self, *, filename="domain"):
         filename = filename + ".pddl"
         hder = Domain._generate_header()
         reqs = Domain._generate_requirements()
@@ -38,7 +39,7 @@ class Domain:
             f.write(str(pddl))
             print(f"Domain PDDL written to {filename}.")
 
-    def generate_problem_pddl(self,
+    def generate_problem_pddl(self, *,
                               init: dict = None,
                               goal: dict = None,
                               filename: str = "problem"):
@@ -121,68 +122,109 @@ class Domain:
         return "\n".join([actions])
 
 
-def action(func) -> str:
-    """Must return a tuple of precond and effect"""
-    @wraps(func)
-    def wrapper(*args, **kwargs):
-        # Invoke function to invoke Python's argument checking
-        precond, effect = func(*args, **kwargs)
+def action(*types):
 
-        action_name = f"(:action {func.__name__}"
+    def decorator(func):
 
-        _, *varnames = func.__code__.co_varnames
-        varnames = varnames[:func.__code__.co_argcount-1]
+        # Check type
+        # _, *params = list(inspect.signature(func).parameters.items())
+        # for param, typ in zip(params, types):
+        #     _, val = param
+        #     if not isinstance(val.default, typ):
+        #         raise TypeError
 
-        params = [f"?{a} - {b[1].__name__.lower()}"
-                  for a, b in zip(varnames, func.__annotations__.items())]
-        params = " ".join(params)
-        params = f"\t\t:parameters ({params})"
+        @wraps(func)
+        def wrapper(*args, **kwargs):
 
-        if not isinstance(precond, list):
-            precond = [precond]
-        precond = [str(p.split(" | ")[1]) for p in precond]
-        precond = "\t\t:precondition " + join(precond, " ")
+            # Subheader
+            action_name = f"(:action {func.__name__}"
 
-        if not isinstance(effect, list):
-            effect = [effect]
-        effect = [str(e.split(" | ")[1]) for e in effect]
-        effect = "\t\t:effect " + join(effect, " ")
+            # We don't need the self for the rest of this code
+            _, *params = list(inspect.signature(func).parameters.items())
+            _, *varnames = func.__code__.co_varnames
+            varnames = varnames[:func.__code__.co_argcount-1]
 
-        action = [action_name, params, precond, effect, "\t)"]
-        action = join(action, "\n", False)
+            # Parameters
+            repre = [f"?{a} - {b.__name__.lower()}"
+                      for a, b in zip(varnames, types)]
+            repre = " ".join(repre)
+            repre = f"\t\t:parameters ({repre})"
 
-        return action
+            # Call the function to get the return values
+            none_args = (None,)*len(varnames)
+            all_args = args + none_args
+            precond, effect = func(*all_args)
 
-    setattr(wrapper, "typ", "action")
-    return wrapper
+            # Precond
+            if not isinstance(precond, list):
+                precond = [precond]
+            precond = [str(p.split(" | ")[1]) for p in precond]
+            precond = "\t\t:precondition " + join(precond, " ")
+
+            # Effect
+            if not isinstance(effect, list):
+                effect = [effect]
+            effect = [str(e.split(" | ")[1]) for e in effect]
+            effect = "\t\t:effect " + join(effect, " ")
+
+            # Final
+            actn = [action_name, repre, precond, effect, "\t)"]
+            actn = join(actn, "\n", False)
+
+            return actn
+
+        setattr(wrapper, "typ", "action")
+        return wrapper
+
+    return decorator
 
 
-def predicate(func) -> str:
-    @wraps(func)
-    def wrapper(*args, **kwargs):
-        """PDDL"""
-        # Invoke function to invoke Python's argument checking
-        func(*args, **kwargs)
+def predicate(*types) -> str:
 
-        _, *varnames = func.__code__.co_varnames
+    def decorator(func):
 
-        params = [f"?{varname} - {annotation[1].__name__.lower()}"
-                  for varname, annotation in zip(varnames, func.__annotations__.items())]
-        params = " ".join(params)
-        params = f"({func.__name__} {params})"
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+            
+            # Invoke function to invoke Python's argument checking
+            # We don't actually need it
+            # func(*args, **kwargs)
 
-        _, *args = args
+            func_name = func.__name__
 
-        params1 = [f"?{arg}" for arg in args]
-        params1 = " ".join(params1)
-        params1 = f"({func.__name__} {params1})"
+            # The first type is self; we'll ignore that
+            _, *params = list(inspect.signature(func).parameters.items())
+            _, *args = args
 
-        args = [str(arg) for arg in args]
+            # Check types
+            # for typ, arg in zip(types, args):
+            #     if not isinstance(arg, typ):
+            #         raise TypeError(f"or hor expected {typ} but got {type(arg)}")
 
-        return PDDLString(params) + " | " + PDDLString(params1) + " | " + PDDLString("(" + " ".join([func.__name__, *args]) + ")")
+            # Representation 1
+            _, *params = list(inspect.signature(func).parameters.items())
+            repr1 = []
+            for param, typ in zip(params, types):
+                param_name, _ = param
+                repr1.append(f"?{param_name} - {typ.__name__.lower()}")
+            repr1 = " ".join(repr1)
+            repr1 = f"({func_name} {repr1})"
 
-    setattr(wrapper, "typ", "predicate")
-    return wrapper
+            # Representation 2
+            repr2 = [f"?{param_name}" for param_name, _ in params]
+            repr2 = " ".join(repr2)
+            repr2 = f"({func_name} {repr2})"
+
+            # Representation 3
+            args = [str(arg) for arg in args]
+            params3 = "(" + " ".join([func_name, *args]) + ")"
+
+            return PDDLString(repr1) + " | " + PDDLString(repr2) + " | " + PDDLString(params3)
+
+        setattr(wrapper, "typ", "predicate")
+        return wrapper
+
+    return decorator
 
 
 def goal(func) -> str:
@@ -221,7 +263,7 @@ def join(li, sep=" ", and_marker=True) -> str:
 
 def create_type(name, Base=None):
     if Base:
-        return type(name, (Base,), {"typ": "type"})
+        return type(name, (object,), {"typ": "type"})
     else:
         return type(name, (UserString,), {"typ": "type"})
 
@@ -249,8 +291,8 @@ def parse(infile: str,
     Problem = getattr(module, problem_name)
 
     p = Problem()
-    p.generate_domain_pddl(domain)
-    p.generate_problem_pddl(problem)
+    p.generate_domain_pddl(filename=domain)
+    p.generate_problem_pddl(filename=problem)
 
 
 if __name__ == "__main__":
