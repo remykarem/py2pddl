@@ -47,39 +47,34 @@ class AirCargoDomain(Domain):
     Cargo = create_type("Cargo")
     Airport = create_type("Airport")
 
-    @predicate
-    def at(self, c: Cargo = None, p: Plane = None):
+    @predicate(Cargo, Airport)
+    def cargo_at(self, c, a):
         pass
 
-    @predicate
-    def in_(self, c: Cargo = None, p: Plane = None):
+    @predicate(Plane, Airport)
+    def plane_at(self, p, a):
         pass
 
-    @action
-    def load(self,
-             c: Cargo = Cargo("c"),
-             p: Plane = Plane("p"),
-             a: Airport = Airport("a")):
-        precond = [self.at(c, a), self.at(p, a)]
-        effect = [~self.at(c, a), self.in_(c, p)]
+    @predicate(Cargo, Plane)
+    def in_(self, c, p):
+        pass
+
+    @action(Cargo, Plane, Airport)
+    def load(self, c, p, a):
+        precond = [self.cargo_at(c, a), self.plane_at(p, a)]
+        effect = [~self.cargo_at(c, a), self.in_(c, p)]
         return precond, effect
 
-    @action
-    def unload(self,
-               c: Cargo = Cargo("c"),
-               p: Plane = Plane("p"),
-               a: Airport = Airport("a")):
-        precond = [self.in_(c, p), self.at(p, a)]
-        effect = [self.at(c, a), ~self.in_(c, p)]
+    @action(Cargo, Plane, Airport)
+    def unload(self, c, p, a):
+        precond = [self.in_(c, p), self.plane_at(p, a)]
+        effect = [self.cargo_at(c, a), ~self.in_(c, p)]
         return precond, effect
 
-    @action
-    def fly(self,
-            p: Plane = Plane("p"),
-            orig: Airport = Airport("orig"),
-            dest: Airport = Airport("dest")):
-        precond = [self.at(p, orig)]
-        effect = [~self.at(p, orig), self.at(p, dest)]
+    @action(Plane, Airport, Airport)
+    def fly(self, p, orig, dest):
+        precond = [self.plane_at(p, orig)]
+        effect = [~self.plane_at(p, orig), self.plane_at(p, dest)]
         return precond, effect
 ```
 
@@ -93,27 +88,31 @@ In `flying.py`,
 4. Define goal with a method decorated with `@goal`
 
 ```python
+from py2pddl import create_objs
 from py2pddl import goal, init
 
 class AirCargoProblem(AirCargoDomain):
 
     def __init__(self):
-        self.cargos = [AirCargoDomain.Cargo(x)
-                       for x in ["C1", "C2"]]
-        self.planes = [AirCargoDomain.Plane(x)
-                       for x in ["P1", "P2"]]
-        self.airports = [AirCargoDomain.Airport(x)
-                         for x in ["SFO", "JFK"]]
+        super().__init__()
+        self.cargos = create_objs(AirCargoDomain.Cargo, [1, 2], True, "c")
+        self.planes = create_objs(AirCargoDomain.Plane, [1, 2], True, "p")
+        self.airports = create_objs(
+            AirCargoDomain.Airport, ["sfo", "jfk"], False)
 
     @init
     def init(self):
-        at = [self.at("C1", "SFO"), self.at("C2", "JFK"),
-              self.at("P1", "SFO"), ]
+        at = [self.cargo_at(self.cargos["c1"], self.airports["sfo"]),
+              self.cargo_at(self.cargos["c2"], self.airports["jfk"]),
+              self.plane_at(self.planes["p1"], self.airports["sfo"]),
+              self.plane_at(self.planes["p2"], self.airports["jfk"]),]
         return at
 
     @goal
-    def goal(self, cargo="C1"):
-        return [self.at("C1", "JFK"), self.at("C2", "SFO")]
+    def goal(self):
+        return [self.cargo_at(self.cargos["c1"], self.airports["jfk"]),
+                self.cargo_at(self.cargos["c2"], self.airports["sfo"])]
+
 ```
 
 To generate the PDDL files, run
@@ -155,23 +154,24 @@ Here is the generated `domain.pddl` file.
 		plane
 	)
 	(:predicates
-		(at ?c - cargo ?p - plane)
+		(cargo_at ?c - cargo ?a - airport)
 		(in_ ?c - cargo ?p - plane)
+		(plane_at ?p - plane ?a - airport)
 	)
 	(:action fly
 		:parameters (?p - plane ?orig - airport ?dest - airport)
-		:precondition (at ?p ?orig)
-		:effect (and (not (at ?p ?orig)) (at ?p ?dest))
+		:precondition (plane_at ?p ?orig)
+		:effect (and (not (plane_at ?p ?orig)) (plane_at ?p ?dest))
 	)
 	(:action load
 		:parameters (?c - cargo ?p - plane ?a - airport)
-		:precondition (and (at ?c ?a) (at ?p ?a))
-		:effect (and (not (at ?c ?a)) (in_ ?c ?p))
+		:precondition (and (cargo_at ?c ?a) (plane_at ?p ?a))
+		:effect (and (not (cargo_at ?c ?a)) (in_ ?c ?p))
 	)
 	(:action unload
 		:parameters (?c - cargo ?p - plane ?a - airport)
-		:precondition (and (in_ ?c ?p) (at ?p ?a))
-		:effect (and (at ?c ?a) (not (in_ ?c ?p)))
+		:precondition (and (in_ ?c ?p) (plane_at ?p ?a))
+		:effect (and (cargo_at ?c ?a) (not (in_ ?c ?p)))
 	)
 )
 ```
@@ -183,12 +183,12 @@ And here is the generated `problem.pddl` file.
 	(problem someproblem)
 	(:domain somedomain)
 	(:objects
-		SFO JFK - airport
-		C1 C2 - cargo
-		P1 P2 - plane
+		sfo jfk - airport
+		c1 c2 - cargo
+		p1 p2 - plane
 	)
-	(:init (at C1 SFO) (at C2 JFK) (at P1 SFO))
-	(:goal (and (at C1 JFK) (at C2 SFO)))
+	(:init (cargo_at c1 sfo) (cargo_at c2 jfk) (plane_at p1 sfo) (plane_at p2 jfk))
+	(:goal (and (cargo_at c1 jfk) (cargo_at c2 sfo)))
 )
 ```
 
