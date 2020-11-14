@@ -336,8 +336,12 @@ def parse(infile: str,
     """
     # Import module
     p = Path(infile)
-    module = importlib.import_module(p.stem)
-    importlib.reload(module)  # there might be a better way for this
+
+    spec = importlib.util.spec_from_file_location(p.stem, str(p.resolve()))
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+
+    #importlib.reload(module)  # there might be a better way for this
 
     problem_name = [attr for attr in dir(module)
                     if attr.endswith("Problem")][0]
