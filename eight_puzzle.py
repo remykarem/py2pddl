@@ -1,5 +1,5 @@
 from typing import Type
-from py2pddl import Domain, create_type
+from py2pddl import Domain, create_type, create_objs
 from py2pddl import predicate, action, goal, init
 
 
@@ -33,10 +33,9 @@ class EightpuzzleDomain(Domain):
 class EightpuzzleProblem(EightpuzzleDomain):
 
     def __init__(self):
-        self.locs = [EightpuzzleDomain.Loc(f"loc{i}")
-                     for i in range(1, 9)]
-        self.tiles = [EightpuzzleDomain.Tile(f"tile{i}")
-                      for i in range(1, 9)]
+        super().__init__()
+        self.locs = create_objs(EightpuzzleDomain.Loc, range(1, 9))
+        self.tiles = create_objs(EightpuzzleDomain.Tile, range(1, 9))
 
     @init
     def init(self) -> list:
