@@ -2,7 +2,22 @@ import inspect
 from functools import wraps
 from collections import UserString, UserDict
 
-#pylint:disable=invalid-name
+# pylint:disable=invalid-name
+
+
+def create_type(name, Base=None) -> type:
+    if Base:
+        Type = type(name, (object,), {"section": "types"})
+    else:
+        Type = type(
+            name,
+            (UserString,),
+            {
+                "section": "types",
+                "__repr__": lambda self: f"{name}('{self.data}')"
+            })
+    return Type
+
 
 class PDDLString(UserString):
     def __invert__(self):
@@ -18,6 +33,12 @@ class PDDLDict(UserDict):
     def __init__(self, typ, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.typ = typ
+
+    def __getitem__(self, key):
+        if key not in self.data:
+            raise KeyError(f"Key {key} does not exist for {self.typ}. Did you define the objects correctly?")
+        else:
+            return self.data[key]
 
 
 class Domain:
@@ -148,7 +169,8 @@ def action(*Types):
 
             # Call the function to get the return values to be used
             # in the later part of this function
-            dummy_args = [Type(varname) for Type, varname in zip(Types, varnames)]
+            dummy_args = [Type(varname)
+                          for Type, varname in zip(Types, varnames)]
             all_args = list(args) + dummy_args
 
             precond, effect = func(*all_args)
@@ -218,7 +240,6 @@ def predicate(*Types) -> str:
                                     f"but found {type(arg).__name__}")
 
             # Representation 1 (in :predicates)
-
             _, *params = list(inspect.signature(func).parameters.items())
             repr1 = []
             for param, Class in zip(params, Types):
@@ -247,10 +268,13 @@ def predicate(*Types) -> str:
 def goal(func) -> str:
     @wraps(func)
     def wrapper(*args, **kwargs):
-        goal = func(*args, **kwargs)
-        goal = [str(g.split(" | ")[2]) for g in goal]
-        goal = f"(:goal {join(goal)})"
-        return PDDLString(goal)
+        goals = func(*args, **kwargs)
+        if not isinstance(goals, list):
+            raise TypeError("Return type of `goal` method must be a list")
+
+        goals = [str(g.split(" | ")[2]) for g in goals]
+        goals = f"(:goal {join(goals)})"
+        return PDDLString(goals)
     setattr(wrapper, "section", "goal")
     return wrapper
 
@@ -258,10 +282,13 @@ def goal(func) -> str:
 def init(func) -> str:
     @wraps(func)
     def wrapper(*args, **kwargs):
-        init = func(*args, **kwargs)
-        init = [str(g.split(" | ")[2]) for g in init]
-        init = f"(:init {join(init, and_marker=False)})"
-        return PDDLString(init)
+        inits = func(*args, **kwargs)
+        if not isinstance(inits, list):
+            raise TypeError("Return type of `init` method must be a list")
+
+        inits = [str(g.split(" | ")[2]) for g in inits]
+        inits = f"(:init {join(inits, and_marker=False)})"
+        return PDDLString(inits)
     setattr(wrapper, "section", "init")
     return wrapper
 
@@ -278,38 +305,22 @@ def join(li, sep=" ", and_marker=True) -> str:
             return sep.join(li)
 
 
-def create_type(name, Base=None) -> type:
-    if Base:
-        return type(name, (object,), {"section": "types"})
-    else:
-        return type(name, (UserString,), {"section": "types"})
-
-
 def create_objs(Class,
                 it,
-                enumer=True,
                 prefix_key=None,
                 prefix_value=None) -> dict:
     class_name = Class.__name__.lower()
 
-    if enumer:
-        if prefix_key is None and prefix_value is None:
-            prefix_key = class_name
-            prefix_value = class_name
-        elif prefix_key is not None and prefix_value is None:
-            prefix_value = prefix_key
-        elif prefix_key is None and prefix_value is not None:
-            prefix_key = prefix_value
-        else:
-            pass
+    if prefix_value is None:
+        prefix_value = class_name
 
+    if prefix_key is None:
         obj_dict = PDDLDict(
             class_name,
-            {f"{prefix_key}{str(i)}": Class(f"{prefix_value}{str(i)}") for i in it})
-
+            {i: Class(f"{prefix_value}{str(i)}") for i in it})
     else:
         obj_dict = PDDLDict(
             class_name,
-            {str(obj): Class(str(obj)) for obj in it})
+            {f"{prefix_key}{str(obj)}": Class(prefix_value+str(obj)) for obj in it})
 
     return obj_dict
