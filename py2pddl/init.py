@@ -10,16 +10,24 @@ def init(filename):
     if path.exists():
         raise FileExistsError("This file already exists. Use a different filename.")
 
+    # Name
     class_name = input("Name: ")
+    class_name = class_name.lstrip().rstrip()
     class_name = class_name[0].upper() + class_name[1:]
 
+    # Types
     user_types = input("Types (separated by space): ")
+    user_types = user_types.lstrip().rstrip()
     types = [typ.title() for typ in user_types.split(" ")]
 
+    # Predicates
     user_predicates = input("Predicates (separated by space): ")
+    user_predicates = user_predicates.lstrip().rstrip()
     predicates = [pred.lower() for pred in user_predicates.split(" ")]
 
+    # Actions
     user_actions = input("Actions (separated by space): ")
+    user_actions = user_actions.lstrip().rstrip()
     actions = [action.lower() for action in user_actions.split(" ")]
 
     domain_header = \
