@@ -1,9 +1,15 @@
-import importlib
 from pathlib import Path
 import fire
-import sys
 
-def init(filename="domain.py"):
+def init(filename):
+    """
+    Args:
+        filename (str): name of file ending with `.py`
+    """
+    path = Path(filename)
+    if path.exists():
+        raise FileExistsError("This file already exists. Use a different filename.")
+
     class_name = input("Name: ")
     class_name = class_name[0].upper() + class_name[1:]
 

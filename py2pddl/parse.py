@@ -1,7 +1,6 @@
 import importlib
 from pathlib import Path
 import fire
-import sys
 
 def parse(infile: str,
           domain="domain",
