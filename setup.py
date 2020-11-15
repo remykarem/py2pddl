@@ -7,7 +7,7 @@ import py2pddl
 
 # Package meta-data.
 VERSION = py2pddl.__version__
-DESCRIPTION = "p2j: Convert Python scripts to Jupyter notebook with minimal intervention"
+DESCRIPTION = "py2pddl: Write planning task as Python classes, then translate to PDDL."
 
 # Import the README and use it as the long-description.
 # Note: this will only work if 'README.md' is present in your MANIFEST.in file!
@@ -20,7 +20,7 @@ except FileNotFoundError:
 
 # This call to setup() does all the work
 setup(
-    name="p2j",
+    name="py2pddl",
     version=VERSION,
     description=DESCRIPTION,
     long_description=LONG_DESCRIPTION,
@@ -45,5 +45,8 @@ setup(
     ],
     keywords='translate python pddl',
     packages=['py2pddl'],
+    install_requires=[
+        "fire==0.3.1",
+    ],
     include_package_data=True
 )
