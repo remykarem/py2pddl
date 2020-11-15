@@ -1,21 +1,20 @@
 # py2pddl (Python to PDDL)
 
-Write your planning task in Python classes, then translate
+Write your planning task as Python classes, then translate
 them to PDDL files.
 
-Design:
+The library is written with these considerations:
 
-As a user, I want to be able to:
-
-* write in Python
-* define the domain and problem using an intuitive syntax
-* be informed of static typing while defining the domain and problem
-* be informed of static typing while parsing
+* To quickly define the domain and problem using some **boilerplate**
+* To define the domain and problem using a **familiar syntax**, prefereably similar to PDDL
+* To be informed of wrong **types**
+* To define ground predicates **cleanly**
+* To **reduce the use of strings** while defining ground predicates
 
 ---
 
 * [Requirements](##requirements)
-* [Installation](##requirements)
+* [Installation](##installation)
 * [Quick start](##quick-start)
 * [Features](##features)
 
@@ -55,10 +54,15 @@ Actions (separated by space): load unload fly
 
 ### 2. Define the domain
 
-1. Inherit from `Domain`
-2. Define types at the top (here, it's `Block`)
-3. Define predicates as methods decorated with `@predicate`
-4. Define actions as methods decorated with `@action`
+In the `aircargo.py` source file, there is a class called `AirCargoDomain`.
+The structure of the class is similar to how a PDDL domain should be defined.
+
+* Name of the domain is the name of the Python class (`AirCargoDomain`).
+* Types are defined as class variables at the top (`Plane`, `Cargo`, `Airport`).
+* Predicates are defined as instance methods decorated with `@predicate`.
+* Actions are defined as instance methods decorated with `@action`.
+
+Now, complete the class definition such that it looks like this:
 
 ```python
 from py2pddl import Domain, create_type
@@ -101,12 +105,26 @@ class AirCargoDomain(Domain):
         return precond, effect
 ```
 
+Note:
+
+* To create a new type `Car`, simply add `Car = create_type("Car")` at the top
+of the class definition.
+* The positional arguments of `@predicate` and `@action` decorators
+are the types of the respective arguments.
+* Methods decorated with `@predicate` should have empty bodies.
+* Methods decorated with `@action` return a tuple of two lists.
+
 ### 3. Define the problem
 
-1. Inherit from `BlocksDomain`, the class above
-2. Define objects in `__init__`
-3. Define init with a method decorated with `@init`
-4. Define goal with a method decorated with `@goal`
+In the bottom part of `aircargo.py`, there is another class called `AirCargoProblem`.
+Again, the structure of the class is similar to how a PDDL problem should be defined.
+
+* Name of the domain is the name of the Python class (`AirCargoProblem`).
+* Objects are defined as the instance attributes in the `__init__` method.
+* Initial states are defined as a methods decorated with `@init`.
+* Goal is defined as an instance methods decorated with `@goal`.
+
+Complete the class definition as follows:
 
 ```python
 from py2pddl import create_objs
@@ -116,54 +134,59 @@ class AirCargoProblem(AirCargoDomain):
 
     def __init__(self):
         super().__init__()
-        self.cargos = create_objs(AirCargoDomain.Cargo, [1, 2], True, "c")
-        self.planes = create_objs(AirCargoDomain.Plane, [1, 2], True, "p")
+        self.cargos = create_objs(AirCargoDomain.Cargo, [1, 2], None, "c")
+        self.planes = create_objs(AirCargoDomain.Plane, [1, 2], None, "p")
         self.airports = create_objs(
             AirCargoDomain.Airport, ["sfo", "jfk"], False)
 
     @init
     def init(self):
-        at = [self.cargo_at(self.cargos["c1"], self.airports["sfo"]),
-              self.cargo_at(self.cargos["c2"], self.airports["jfk"]),
-              self.plane_at(self.planes["p1"], self.airports["sfo"]),
-              self.plane_at(self.planes["p2"], self.airports["jfk"]),]
+        at = [self.cargo_at(self.cargos[1], self.airports["sfo"]),
+              self.cargo_at(self.cargos[2], self.airports["jfk"]),
+              self.plane_at(self.planes[1], self.airports["sfo"]),
+              self.plane_at(self.planes[2], self.airports["jfk"]),]
         return at
 
     @goal
     def goal(self):
-        return [self.cargo_at(self.cargos["c1"], self.airports["jfk"]),
-                self.cargo_at(self.cargos["c2"], self.airports["sfo"])]
-
+        return [self.cargo_at(self.cargos[1], self.airports["jfk"]),
+                self.cargo_at(self.cargos[2], self.airports["sfo"])]
 ```
+
+Note:
+
+* `create_objs` return a dictionary whose keys are `[1,2]` (for cargos and planes)
+and `["sfo", "jfk"]` for airports. This allows cleaner access to these objects
+while defining ground predicates, which usually can get pretty messy.
+* The PDDL objects defined in the `__init__` are meant to be used across
+the 2 instance methods.
 
 ### 4. Parse
 
-To generate the PDDL files, run
+* To generate the PDDL files from the command line, run
 
-```text
-python -m py2pddl.parse aircargo.py
-```
+    ```text
+    python -m py2pddl.parse aircargo.py
+    ```
 
-You can also import is as a module and generate the 2 files.
-You only need to import the Problem class, instantiate and
-generate the relevant files.
+* You can also import the parsing function from the module
 
-```python
-from flying import GridCarProblem
+    ```python
+    from py2pddl import parse
+    parse("aircargo.py")
+    ```
 
-p = GridCarProblem()
-p.generate_domain_pddl()
-p.generate_problem_pddl()
-```
+* The class itself also contains methods to generate the domain
+and problem PDDL files separately. These methods were inherited from
+`Domain`.
 
-If you want the problem PDDL to be more dynamic if you have
-changing inits and goals, you could use dictionaries and
-specify in the `init` or `goal` keyword argument.
+    ```python
+    from flying import GridCarProblem
 
-```python
-p.generate_problem_pddl(
-    goal={"cargo": "C2"})
-```
+    p = AirCargoProblem()
+    p.generate_domain_pddl()
+    p.generate_problem_pddl()
+    ```
 
 Here is the generated `domain.pddl` file.
 
@@ -229,3 +252,14 @@ To output a plan. Here's the plan generated from the above PDDL:
 ```
 
 See more examples in the `pddl/` folder.
+
+### 5. Generate the problems dynamically
+
+If you want the problem PDDL to be more dynamic if you have
+changing inits and goals, you could use dictionaries and
+specify in the `init` or `goal` keyword argument.
+
+```python
+p.generate_problem_pddl(
+    goal={"cargo": "C2"})
+```
