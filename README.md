@@ -18,6 +18,7 @@ The library is written with these considerations:
 * [Requirements](##requirements)
 * [Installation](##installation)
 * [Quick start in 5 steps](##quick-start-in-5-steps)
+* [Resources](##resources)
 
 ## Requirements
 
@@ -264,3 +265,8 @@ specify in the `init` or `goal` keyword argument.
 p.generate_problem_pddl(
     goal={"cargo": "C2"})
 ```
+
+## Resources
+
+* [PDDL4J](https://github.com/pellierd/pddl4j)
+* [Fast Downward](https://github.com/aibasel/downward)
