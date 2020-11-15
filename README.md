@@ -1,7 +1,9 @@
 # py2pddl (Python to PDDL)
 
 Write your planning task as Python classes, then translate
-them to PDDL files.
+them to PDDL files. We will use PDDL with `(:requirements :strips :typing)`, i.e.
+the actions only use positive preconditions and deterministic effects, and
+we use 'types' like in OOP to represent sets of objects.
 
 The library is written with these considerations:
 
