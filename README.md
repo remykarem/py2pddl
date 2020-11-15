@@ -15,22 +15,44 @@ As a user, I want to be able to
 ---
 
 * [Requirements](##requirements)
-* [Sample](##sample)
+* [Installation](##requirements)
+* [Quick start](##quick-start)
 
 ## Requirements
 
 * Python 3.6
-* fire (`pip install fire`)
+* [python-fire](https://github.com/google/python-fire) (`pip install fire`)
 
-## Sample
+## Installation
 
-Here is a sample Air Cargo problem:
+```bash
+...
+```
+
+## Quick start
+
+We will use the following problem:
 
 ![aircargoproblem.png](aircargoproblem.png)
 
-### Defining the domain
+### 1. Set up boilerplate
 
-In `flying.py`,
+Run
+
+```text
+python -m py2pddl.init aircargo.py
+```
+
+and enter the following:
+
+```text
+Name: AirCargo
+Types (separated by space): cargo airport plane
+Predicates (separated by space): plane_at cargo_at in_
+Actions (separated by space): load unload fly
+```
+
+### 2. Define the domain
 
 1. Inherit from `Domain`
 2. Define types at the top (here, it's `Block`)
@@ -78,9 +100,7 @@ class AirCargoDomain(Domain):
         return precond, effect
 ```
 
-### Defining the problem
-
-In `flying.py`,
+### 3. Define the problem
 
 1. Inherit from `BlocksDomain`, the class above
 2. Define objects in `__init__`
@@ -115,10 +135,12 @@ class AirCargoProblem(AirCargoDomain):
 
 ```
 
+### 4. Parse
+
 To generate the PDDL files, run
 
 ```text
-python -m py2pddl flying.py
+python -m py2pddl.parse aircargo.py
 ```
 
 You can also import is as a module and generate the 2 files.
