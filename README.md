@@ -26,7 +26,7 @@ The library is written with these considerations:
 ## Installation
 
 ```bash
-...
+pip install git+https://github.com/remykarem/py2pddl#egg=py2pddl
 ```
 
 ## Quick start
