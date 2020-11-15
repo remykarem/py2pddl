@@ -17,8 +17,7 @@ The library is written with these considerations:
 
 * [Requirements](##requirements)
 * [Installation](##installation)
-* [Quick start](##quick-start)
-* [Features](##features)
+* [Quick start in 5 steps](##quick-start-in-5-steps)
 
 ## Requirements
 
@@ -31,7 +30,7 @@ The library is written with these considerations:
 pip install git+https://github.com/remykarem/py2pddl#egg=py2pddl
 ```
 
-## Quick start
+## Quick start in 5 steps
 
 We will use the following problem:
 
