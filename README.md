@@ -5,18 +5,19 @@ them to PDDL files.
 
 Design:
 
-As a user, I want to be able to
+As a user, I want to be able to:
 
-* define the domain and problem simply.
-* be warned with pylint static checking on wrong types
-* be warned with type checking while parsing
-* not have any silly errors in the generated pddl file
+* write in Python
+* define the domain and problem using an intuitive syntax
+* be informed of static typing while defining the domain and problem
+* be informed of static typing while parsing
 
 ---
 
 * [Requirements](##requirements)
 * [Installation](##requirements)
 * [Quick start](##quick-start)
+* [Features](##features)
 
 ## Requirements
 
