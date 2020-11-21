@@ -7,9 +7,9 @@ we use 'types' like in OOP to represent sets of objects.
 
 The library is written with these considerations:
 
+* **Type checking**
 * To quickly define the domain and problem using some **boilerplate**
 * To define the domain and problem using a **familiar syntax**, prefereably similar to PDDL
-* To be informed of wrong **types**
 * To define ground predicates **cleanly**
 * To **reduce the use of strings** while defining ground predicates
 
