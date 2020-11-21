@@ -69,6 +69,7 @@ class {class_name}Problem({class_name}Domain):
     section_object = \
 """\
     def __init__(self):
+        super().__init__()
         \"\"\"To fill in\"\"\"
 """
 
