@@ -77,18 +77,12 @@ class LogisticsProblem(LogisticsDomain):
     def __init__(self):
         """To fill in"""
         super().__init__()
-        self.trucks = LogisticsDomain.Truck.create_objs(
-            ["truck"], prefix_value="")
-        self.airplanes = LogisticsDomain.Airplane.create_objs(
-            ["plane"], prefix_value="")
-        self.airports = LogisticsDomain.Airport.create_objs(
-            ["cdg", "lhr"], prefix_value="")
-        self.places = LogisticsDomain.Place.create_objs(
-            ["north", "south"], prefix_value="")
-        self.cities = LogisticsDomain.City.create_objs(
-            ["london", "paris"], prefix_value="")
-        self.pkgs = LogisticsDomain.Package.create_objs(
-            ["p1", "p2"], prefix_value="")
+        self.trucks = LogisticsDomain.Truck.create_objs(["truck"])
+        self.airplanes = LogisticsDomain.Airplane.create_objs(["plane"])
+        self.airports = LogisticsDomain.Airport.create_objs(["cdg", "lhr"])
+        self.places = LogisticsDomain.Place.create_objs(["north", "south"])
+        self.cities = LogisticsDomain.City.create_objs(["london", "paris"])
+        self.pkgs = LogisticsDomain.Package.create_objs(["p1", "p2"])
 
     @init
     def init(self) -> list:
