@@ -7,7 +7,7 @@ from collections import UserString, UserDict
 
 def create_type(name, Base=None) -> type:
     if Base:
-        Type = type(name, (object,), {"section": "types"})
+        Type = type(name, (Base,), {"section": "types"})
     else:
         Type = type(
             name,
