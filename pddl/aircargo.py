@@ -1,6 +1,5 @@
 from py2pddl import Domain, create_type, create_objs
-from py2pddl import predicate, action
-from py2pddl import goal, init
+from py2pddl import predicate, action, goal, init
 
 
 class AirCargoDomain(Domain):
@@ -11,15 +10,18 @@ class AirCargoDomain(Domain):
 
     @predicate(Cargo, Airport)
     def cargo_at(self, c, a):
-        pass
+        """Complete the method signature and specify
+        the respective types in the decorator"""
 
     @predicate(Plane, Airport)
     def plane_at(self, p, a):
-        pass
+        """Complete the method signature and specify
+        the respective types in the decorator"""
 
     @predicate(Cargo, Plane)
     def in_(self, c, p):
-        pass
+        """Complete the method signature and specify
+        the respective types in the decorator"""
 
     @action(Cargo, Plane, Airport)
     def load(self, c, p, a):
@@ -44,20 +46,21 @@ class AirCargoProblem(AirCargoDomain):
 
     def __init__(self):
         super().__init__()
-        self.cargos = create_objs(AirCargoDomain.Cargo, [1, 2], True, "c")
-        self.planes = create_objs(AirCargoDomain.Plane, [1, 2], True, "p")
-        self.airports = create_objs(
-            AirCargoDomain.Airport, ["sfo", "jfk"], False)
+        self.cargos = create_objs(
+            AirCargoDomain.Cargo, [1, 2], prefix_key=None, prefix_value="c")
+        self.planes = create_objs(
+            AirCargoDomain.Plane, [1, 2], prefix_key=None, prefix_value="p")
+        self.airports = create_objs(AirCargoDomain.Airport, ["sfo", "jfk"])
 
     @init
     def init(self):
-        at = [self.cargo_at(self.cargos["c1"], self.airports["sfo"]),
-              self.cargo_at(self.cargos["c2"], self.airports["jfk"]),
-              self.plane_at(self.planes["p1"], self.airports["sfo"]),
-              self.plane_at(self.planes["p2"], self.airports["jfk"]), ]
+        at = [self.cargo_at(self.cargos[1], self.airports["sfo"]),
+              self.cargo_at(self.cargos[2], self.airports["jfk"]),
+              self.plane_at(self.planes[1], self.airports["sfo"]),
+              self.plane_at(self.planes[2], self.airports["jfk"]),]
         return at
 
     @goal
     def goal(self):
-        return [self.cargo_at(self.cargos["c1"], self.airports["jfk"]),
-                self.cargo_at(self.cargos["c2"], self.airports["sfo"])]
+        return [self.cargo_at(self.cargos[1], self.airports["jfk"]),
+                self.cargo_at(self.cargos[2], self.airports["sfo"])]
