@@ -8,8 +8,8 @@ we use 'types' like in OOP to represent sets of objects.
 The library is written with these considerations:
 
 * **Type checking**
+* To define the domain and problem as Python but yet still look similar to PDDL
 * To quickly define the domain and problem using some **boilerplate**
-* To define the domain and problem using a **familiar syntax**, prefereably similar to PDDL
 * To define ground predicates **cleanly**
 * To **reduce the use of strings** while defining ground predicates
 
