@@ -32,7 +32,7 @@ def init(filename):
 
     domain_header = \
 f"""\
-from py2pddl import Domain, create_type, create_objs
+from py2pddl import Domain, create_type
 from py2pddl import predicate, action, goal, init
 
 

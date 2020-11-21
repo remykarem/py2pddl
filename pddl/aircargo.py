@@ -1,4 +1,4 @@
-from py2pddl import Domain, create_type, create_objs
+from py2pddl import Domain, create_type
 from py2pddl import predicate, action, goal, init
 
 
@@ -46,11 +46,9 @@ class AirCargoProblem(AirCargoDomain):
 
     def __init__(self):
         super().__init__()
-        self.cargos = create_objs(
-            AirCargoDomain.Cargo, [1, 2], prefix_key=None, prefix_value="c")
-        self.planes = create_objs(
-            AirCargoDomain.Plane, [1, 2], prefix_key=None, prefix_value="p")
-        self.airports = create_objs(AirCargoDomain.Airport, ["sfo", "jfk"])
+        self.cargos = AirCargoDomain.Cargo.create_objs([1, 2], prefix_value="c")
+        self.planes = AirCargoDomain.Plane.create_objs([1, 2], prefix_value="p")
+        self.airports = AirCargoDomain.Airport.create_objs(["sfo", "jfk"])
 
     @init
     def init(self):

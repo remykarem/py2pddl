@@ -67,7 +67,7 @@ The structure of the class is similar to how a PDDL domain should be defined.
 Now, complete the class definition such that it looks like this:
 
 ```python
-from py2pddl import Domain, create_type, create_objs
+from py2pddl import Domain, create_type
 from py2pddl import predicate, action
 
 class AirCargoDomain(Domain):
@@ -132,7 +132,6 @@ Again, the structure of the class is similar to how a PDDL problem should be def
 Complete the class definition as follows:
 
 ```python
-from py2pddl import create_objs
 from py2pddl import goal, init
 
 class AirCargoProblem(AirCargoDomain):
@@ -161,9 +160,9 @@ class AirCargoProblem(AirCargoDomain):
 
 Note:
 
-* The Python objects (`cargos`, `planes` and `airports`) must be of type dict.
-As an example, `create_objs(AirCargoDomain.Cargo, [1, 2], None, "c")` will create
-a Python dictionary `{1: AirCargoDomain.Plane("p1"), 2: AirCargoDomain.Plane("p2")}`.
+* The Python objects (`cargos`, `planes` and `airports`) are created using the respective
+types defined in the `AirCargoDomain`. For example, `AirCargoDomain.Cargo.create_objs([1, 2], None, "c")`
+will create a Python dictionary `{1: AirCargoDomain.Plane("p1"), 2: AirCargoDomain.Plane("p2")}`.
 This allows cleaner access to these objects while defining initial state and goal,
 which usually can get pretty messy.
 * The PDDL objects defined in the `__init__` are meant to be used across

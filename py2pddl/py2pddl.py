@@ -8,14 +8,16 @@ from collections import UserString, UserDict
 def create_type(name, Base=None) -> type:
     if Base:
         Type = type(name, (Base,), {"section": "types"})
+        Type.create_objs = classmethod(_create_objs)
     else:
         Type = type(
             name,
             (UserString,),
             {
                 "section": "types",
-                "__repr__": lambda self: f"{name}('{self.data}')"
+                "__repr__": lambda self: f"{name}('{self.data}')",
             })
+        Type.create_objs = classmethod(_create_objs)
     return Type
 
 
@@ -37,7 +39,7 @@ class PDDLDict(UserDict):
     def __getitem__(self, key):
         if key not in self.data:
             raise KeyError(
-                f"Key {key} does not exist for {self.typ}. Did you define the objects correctly?")
+                f"Key '{key}' does not exist for {self.typ}. Did you define the objects correctly?")
         else:
             return self.data[key]
 
@@ -306,11 +308,11 @@ def join(li: list, sep: str = " ", and_marker: bool = True) -> str:
             return sep.join(li)
 
 
-def create_objs(Class,
-              it,
-              prefix_key: str = None,
-              prefix_value: str = None) -> dict:
-    class_name = Class.__name__.lower()
+def _create_objs(cls,
+                it,
+                prefix_key: str = None,
+                prefix_value: str = None) -> dict:
+    class_name = cls.__name__.lower()
 
     if prefix_value is None:
         prefix_value = class_name
@@ -318,10 +320,10 @@ def create_objs(Class,
     if prefix_key is None:
         obj_dict = PDDLDict(
             class_name,
-            {i: Class(f"{prefix_value}{str(i)}") for i in it})
+            {i: cls(f"{prefix_value}{str(i)}") for i in it})
     else:
         obj_dict = PDDLDict(
             class_name,
-            {f"{prefix_key}{str(obj)}": Class(prefix_value+str(obj)) for obj in it})
+            {f"{prefix_key}{str(obj)}": cls(prefix_value+str(obj)) for obj in it})
 
     return obj_dict
