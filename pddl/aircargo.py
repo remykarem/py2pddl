@@ -46,8 +46,8 @@ class AirCargoProblem(AirCargoDomain):
 
     def __init__(self):
         super().__init__()
-        self.cargos = AirCargoDomain.Cargo.create_objs([1, 2], prefix_value="c")
-        self.planes = AirCargoDomain.Plane.create_objs([1, 2], prefix_value="p")
+        self.cargos = AirCargoDomain.Cargo.create_objs([1, 2], prefix="c")
+        self.planes = AirCargoDomain.Plane.create_objs([1, 2], prefix="p")
         self.airports = AirCargoDomain.Airport.create_objs(["sfo", "jfk"])
 
     @init

@@ -253,6 +253,8 @@ def predicate(*Types) -> str:
             # func(*args, **kwargs)
 
             func_name = func.__name__.replace("_", "-")
+            if func_name.endswith("-"):
+                func_name = func_name[:-1]
 
             # The first type is self; we'll ignore that
             _, *params = list(inspect.signature(func).parameters.items())
@@ -270,12 +272,12 @@ def predicate(*Types) -> str:
             repr1 = []
             for param, Class in zip(params, Types):
                 param_name, _ = param
-                repr1.append(f"?{param_name} - {Class.__name__.lower()}")
+                repr1.append(f"?{param_name.replace('_', '-')} - {Class.__name__.lower()}")
             repr1 = " ".join(repr1)
             repr1 = f"({func_name} {repr1})"
 
             # Representation 2 (in :action :precondition/:effect)
-            repr2 = [f"?{str(arg)}" for arg in args]
+            repr2 = [f"?{str(arg).replace('_', '-')}" for arg in args]
             repr2 = " ".join(repr2)
             repr2 = f"({func_name} {repr2})"
 
@@ -332,21 +334,15 @@ def join(li: list, sep: str = " ", and_marker: bool = True) -> str:
 
 
 def _create_objs(cls,
-                 it,
-                 prefix_key: str = None,
-                 prefix_value: str = "") -> dict:
+                 objs: list,
+                 prefix: str = "") -> dict:
     class_name = cls.__name__.lower()
 
-    if prefix_value is None:
-        prefix_value = class_name
+    if prefix is None:
+        prefix = class_name
 
-    if prefix_key is None:
-        obj_dict = PDDLDict(
-            class_name,
-            {i: cls(f"{prefix_value}{str(i)}") for i in it})
-    else:
-        obj_dict = PDDLDict(
-            class_name,
-            {f"{prefix_key}{str(obj)}": cls(prefix_value+str(obj)) for obj in it})
+    obj_dict = PDDLDict(
+        class_name,
+        {obj: cls(f"{prefix}{str(obj)}") for obj in objs})
 
     return obj_dict
