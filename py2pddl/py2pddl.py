@@ -36,7 +36,8 @@ class PDDLDict(UserDict):
 
     def __getitem__(self, key):
         if key not in self.data:
-            raise KeyError(f"Key {key} does not exist for {self.typ}. Did you define the objects correctly?")
+            raise KeyError(
+                f"Key {key} does not exist for {self.typ}. Did you define the objects correctly?")
         else:
             return self.data[key]
 
@@ -178,6 +179,12 @@ def action(*Types):
             # The first type is self; we'll ignore that
             _, *args = args
 
+            if len(Types) != len(args):
+                raise ValueError(
+                    f"Number of arguments in method '{action_name}' "
+                    "should match the number of types specified in "
+                    "the decorator.")
+
             # Check types
             # Ignore if it's NoneType (to define the domain)
             for Class, arg in zip(Types, args):
@@ -231,6 +238,12 @@ def predicate(*Types) -> str:
             # The first type is self; we'll ignore that
             _, *params = list(inspect.signature(func).parameters.items())
             _, *args = args
+
+            if len(Types) != len(args):
+                raise ValueError(
+                    f"Number of arguments in method '{func_name}' "
+                    "should match the number of types specified in "
+                    "the decorator.")
 
             # Check types
             # Ignore if it's NoneType (to define the domain)
