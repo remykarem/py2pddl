@@ -1,6 +1,6 @@
 import inspect
 from functools import wraps
-from collections import UserString, UserDict
+from collections import UserString, UserDict, defaultdict
 
 # pylint:disable=invalid-name
 
@@ -100,14 +100,37 @@ class Domain:
         return "\t(:requirements :strips :typing)"
 
     def _generate_types(self):
-        types = "\n".join([
-            f"\t\t{attr.lower()}"
-            for attr in dir(self)
-            if hasattr(getattr(self, attr), "section") and
-            getattr(self, attr).section == "types" and
-            not hasattr(getattr(self, attr), "data")
-        ])
-        return "\n".join(["\t(:types", types, "\t)"])
+        # Keep track of hierarchical types using `types_dict`
+        # and types with possibly no children using `types_list`
+        types_dict = defaultdict(list)
+        types_list = []
+
+        # Update `types_dict`
+        for attr_name in dir(self):
+            attr = getattr(self, attr_name)
+            if hasattr(attr, "section") and attr.section == "types":
+                # Assume client code only subclasses from one type
+                base = attr.__bases__[0]
+                base_name = base.__name__.lower()
+                if base == UserString:
+                    types_list.append(attr_name.lower())
+                else:
+                    types_dict[base_name].append(attr_name.lower())
+
+        # Update `types_list`
+        for typ in types_list:
+            if typ in types_dict:
+                types_list.remove(typ)
+
+        section_types = []
+        for parent, children in types_dict.items():
+            section_types.append(f"\t\t{' '.join(children)} - {parent}")
+        for typ in types_list:
+            section_types.append(f"\t\t{typ}")
+        section_types = "\n".join(section_types)
+        section_types = "\n".join(["\t(:types", section_types, "\t)"])
+
+        return section_types
 
     def _generate_predicates(self):
         predicates = "\n".join([
@@ -163,7 +186,7 @@ def action(*Types):
         def wrapper(*args, **kwargs):
 
             # Subheader
-            action_name = f"(:action {func.__name__}"
+            action_name = f"(:action {func.__name__.replace('_', '-')}"
 
             # We don't need the self for the rest of this code
             _, *params = list(inspect.signature(func).parameters.items())
@@ -229,7 +252,7 @@ def predicate(*Types) -> str:
             # We don't actually need it
             # func(*args, **kwargs)
 
-            func_name = func.__name__
+            func_name = func.__name__.replace("_", "-")
 
             # The first type is self; we'll ignore that
             _, *params = list(inspect.signature(func).parameters.items())
@@ -309,9 +332,9 @@ def join(li: list, sep: str = " ", and_marker: bool = True) -> str:
 
 
 def _create_objs(cls,
-                it,
-                prefix_key: str = None,
-                prefix_value: str = None) -> dict:
+                 it,
+                 prefix_key: str = None,
+                 prefix_value: str = "") -> dict:
     class_name = cls.__name__.lower()
 
     if prefix_value is None:
