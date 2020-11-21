@@ -12,22 +12,22 @@ def init(filename):
 
     # Name
     class_name = input("Name: ")
-    class_name = class_name.lstrip().rstrip()
+    class_name = sanitise(class_name)
     class_name = class_name[0].upper() + class_name[1:]
 
     # Types
     user_types = input("Types (separated by space): ")
-    user_types = user_types.lstrip().rstrip()
+    user_types = sanitise(user_types)
     types = [typ.title() for typ in user_types.split(" ")]
 
     # Predicates
     user_predicates = input("Predicates (separated by space): ")
-    user_predicates = user_predicates.lstrip().rstrip()
+    user_predicates = sanitise(user_predicates)
     predicates = [pred.lower() for pred in user_predicates.split(" ")]
 
     # Actions
     user_actions = input("Actions (separated by space): ")
-    user_actions = user_actions.lstrip().rstrip()
+    user_actions = sanitise(user_actions)
     actions = [action.lower() for action in user_actions.split(" ")]
 
     domain_header = \
@@ -48,14 +48,14 @@ f"""\
 f"""\
     @predicate(...)
     def {predicate}(self):
-        \"\"\"Complete the method signature\"\"\"
+        \"\"\"Complete the method signature and specify
+        the respective types in the decorator\"\"\"
 """ for predicate in predicates])
 
     section_action = "\n".join([\
 f"""\
     @action(...)
     def {action}(self):
-        \"\"\"This should be a pass\"\"\"
         precond: list = None  # to fill in
         effect: list = None  # to fill in
         return precond, effect
@@ -98,6 +98,10 @@ class {class_name}Problem({class_name}Domain):
     with open(filename, "w", encoding="utf-8") as f:
         f.write(template)
         print(f"File written to {filename}")
+
+
+def sanitise(text):
+    return text.strip().replace("-", "_")
 
 
 if __name__ == "__main__":
