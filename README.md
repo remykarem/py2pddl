@@ -67,7 +67,7 @@ The structure of the class is similar to how a PDDL domain should be defined.
 Now, complete the class definition such that it looks like this:
 
 ```python
-from py2pddl import Domain, create_type
+from py2pddl import Domain, create_type, create_objs
 from py2pddl import predicate, action
 
 class AirCargoDomain(Domain):
@@ -78,15 +78,18 @@ class AirCargoDomain(Domain):
 
     @predicate(Cargo, Airport)
     def cargo_at(self, c, a):
-        pass
+        """Complete the method signature and specify
+        the respective types in the decorator"""
 
     @predicate(Plane, Airport)
     def plane_at(self, p, a):
-        pass
+        """Complete the method signature and specify
+        the respective types in the decorator"""
 
     @predicate(Cargo, Plane)
     def in_(self, c, p):
-        pass
+        """Complete the method signature and specify
+        the respective types in the decorator"""
 
     @action(Cargo, Plane, Airport)
     def load(self, c, p, a):
@@ -136,10 +139,11 @@ class AirCargoProblem(AirCargoDomain):
 
     def __init__(self):
         super().__init__()
-        self.cargos = create_objs(AirCargoDomain.Cargo, [1, 2], None, "c")
-        self.planes = create_objs(AirCargoDomain.Plane, [1, 2], None, "p")
-        self.airports = create_objs(
-            AirCargoDomain.Airport, ["sfo", "jfk"], False)
+        self.cargos = create_objs(
+            AirCargoDomain.Cargo, [1, 2], prefix_key=None, prefix_value="c")
+        self.planes = create_objs(
+            AirCargoDomain.Plane, [1, 2], prefix_key=None, prefix_value="p")
+        self.airports = create_objs(AirCargoDomain.Airport, ["sfo", "jfk"])
 
     @init
     def init(self):
@@ -157,11 +161,15 @@ class AirCargoProblem(AirCargoDomain):
 
 Note:
 
-* `create_objs` return a dictionary whose keys are `[1,2]` (for cargos and planes)
-and `["sfo", "jfk"]` for airports. This allows cleaner access to these objects
-while defining ground predicates, which usually can get pretty messy.
+* The Python objects (`cargos`, `planes` and `airports`) must be of type dict.
+As an example, `create_objs(AirCargoDomain.Cargo, [1, 2], None, "c")` will create
+a Python dictionary `{1: AirCargoDomain.Plane("p1"), 2: AirCargoDomain.Plane("p2")}`.
+This allows cleaner access to these objects while defining initial state and goal,
+which usually can get pretty messy.
 * The PDDL objects defined in the `__init__` are meant to be used across
 the 2 instance methods.
+* Any method decorated with `@init` must return a list.
+* Any method decorated with `@goal` must return a list.
 
 ### 4. Parse
 
