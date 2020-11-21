@@ -179,12 +179,6 @@ def action(*Types):
             # The first type is self; we'll ignore that
             _, *args = args
 
-            if len(Types) != len(args):
-                raise ValueError(
-                    f"Number of arguments in method '{action_name}' "
-                    "should match the number of types specified in "
-                    "the decorator.")
-
             # Check types
             # Ignore if it's NoneType (to define the domain)
             for Class, arg in zip(Types, args):
@@ -238,12 +232,6 @@ def predicate(*Types) -> str:
             # The first type is self; we'll ignore that
             _, *params = list(inspect.signature(func).parameters.items())
             _, *args = args
-
-            if len(Types) != len(args):
-                raise ValueError(
-                    f"Number of arguments in method '{func_name}' "
-                    "should match the number of types specified in "
-                    "the decorator.")
 
             # Check types
             # Ignore if it's NoneType (to define the domain)
@@ -306,7 +294,7 @@ def init(func) -> str:
     return wrapper
 
 
-def join(li, sep=" ", and_marker=True) -> str:
+def join(li: list, sep: str = " ", and_marker: bool = True) -> str:
     li = [str(l) for l in li]
 
     if len(li) == 1:
@@ -319,9 +307,9 @@ def join(li, sep=" ", and_marker=True) -> str:
 
 
 def create_objs(Class,
-                it,
-                prefix_key=None,
-                prefix_value=None) -> dict:
+              it,
+              prefix_key: str = None,
+              prefix_value: str = None) -> dict:
     class_name = Class.__name__.lower()
 
     if prefix_value is None:
