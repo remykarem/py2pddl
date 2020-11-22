@@ -15,12 +15,12 @@ The library is written with these considerations:
 
 ---
 
-* [Features](##features)
-* [Requirements](##requirements)
-* [Installation](##installation)
-* [Quick start in 5 steps](##quick-start-in-5-steps)
-* [Examples](##examples)
-* [Resources](##resources)
+* [Features](#features)
+* [Requirements](#requirements)
+* [Installation](#installation)
+* [Quick start in 5 steps](#quick-start-in-5-steps)
+* [Examples](#examples)
+* [Resources](#resources)
 
 ## Features
 
