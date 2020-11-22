@@ -80,7 +80,7 @@ class LogisticsProblem(LogisticsDomain):
         self.trucks = LogisticsDomain.Truck.create_objs(["truck"])
         self.airplanes = LogisticsDomain.Airplane.create_objs(["plane"])
         self.airports = LogisticsDomain.Airport.create_objs(["cdg", "lhr"])
-        self.places = LogisticsDomain.Place.create_objs(["north", "south"])
+        self.locations = LogisticsDomain.Location.create_objs(["north", "south"])
         self.cities = LogisticsDomain.City.create_objs(["london", "paris"])
         self.pkgs = LogisticsDomain.Package.create_objs(["p1", "p2"])
 
@@ -89,8 +89,8 @@ class LogisticsProblem(LogisticsDomain):
         in_city = [
             self.in_city(self.airports["cdg"], self.cities["paris"]),
             self.in_city(self.airports["lhr"], self.cities["london"]),
-            self.in_city(self.places["north"], self.cities["paris"]),
-            self.in_city(self.places["south"], self.cities["paris"]),
+            self.in_city(self.locations["north"], self.cities["paris"]),
+            self.in_city(self.locations["south"], self.cities["paris"]),
         ]
         at = [
             self.at(self.airplanes["plane"], self.airports["lhr"]),
@@ -104,5 +104,5 @@ class LogisticsProblem(LogisticsDomain):
     def goal(self) -> list:
         # To fill in
         # Return type is a list
-        return [self.at(self.pkgs["p1"], self.places["north"]),
-                self.at(self.pkgs["p2"], self.places["south"])]
+        return [self.at(self.pkgs["p1"], self.locations["north"]),
+                self.at(self.pkgs["p2"], self.locations["south"])]

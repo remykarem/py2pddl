@@ -1,0 +1,7 @@
+(load c2 p2 jfk)
+(fly p2 jfk sfo)
+(unload c2 p2 sfo)
+(load c1 p2 sfo)
+(fly p2 sfo jfk)
+(unload c1 p2 jfk)
+; cost = 6 (unit cost)

@@ -2,10 +2,10 @@
 	(domain somedomain)
 	(:requirements :strips :typing)
 	(:types
-		airplane truck - vehicle
-		airport location - place
 		city physobj place - object
 		package vehicle - physobj
+		airplane truck - vehicle
+		airport location - place
 	)
 	(:predicates
 		(at ?physobj - physobj ?place - place)
