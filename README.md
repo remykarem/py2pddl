@@ -284,7 +284,7 @@ p.generate_problem_pddl(
 
 ## Examples
 
-Below are several example domains. The respective Python files, PDDL files and sas_plan files can be found in the `pddl/` folder.
+Below are several example domains. The respective Python files, PDDL files and sas_plan files can be found in the `pddl/` folder [here](https://github.com/remykarem/py2pddl/tree/master/pddl).
 
 * [Logistics](https://github.com/pellierd/pddl4j/wiki/Logistics:-a-simple-running-example)
 * [Blocks world](https://en.wikipedia.org/wiki/Blocks_world)
