@@ -7,8 +7,10 @@ from collections import UserString, UserDict, defaultdict
 
 def create_type(name, Base=None) -> type:
     if Base:
-        Type = type(name, (Base,), {"section": "types"})
-        Type.create_objs = classmethod(_create_objs)
+        Type = type(name, (Base,), {
+            "section": "types",
+            "create_objs": classmethod(_create_objs)
+        })
     else:
         Type = type(
             name,
@@ -16,8 +18,8 @@ def create_type(name, Base=None) -> type:
             {
                 "section": "types",
                 "__repr__": lambda self: f"{name}('{self.data}')",
+                "create_objs": classmethod(_create_objs)
             })
-        Type.create_objs = classmethod(_create_objs)
     return Type
 
 
@@ -39,7 +41,8 @@ class PDDLDict(UserDict):
     def __getitem__(self, key):
         if key not in self.data:
             raise KeyError(
-                f"Key '{key}' does not exist for {self.typ}. Did you define the objects correctly?")
+                f"Key '{key}' does not exist for {self.typ}. "
+                "Have you defined the objects correctly?")
         else:
             return self.data[key]
 
@@ -54,7 +57,7 @@ class Domain:
 
     def generate_domain_pddl(self, *, filename="domain"):
         filename = filename + ".pddl"
-        hder = Domain._generate_header()
+        hder = self._generate_header_domain()
         reqs = Domain._generate_requirements()
         typs = self._generate_types()
         prds = self._generate_predicates()
@@ -75,25 +78,33 @@ class Domain:
             goal = {}
         filename = filename + ".pddl"
 
-        hder = Domain._generate_header_prob()
-        domain = "\t" + "(:domain somedomain)"
+        hder = self._generate_header_prob()
         objs = self._generate_objects()
         inits = "\t" + self.init(**init)
         goals = "\t" + self.goal(**goal)
 
-        pddl = join([hder, domain, objs, inits, goals, ")\n"],
+        pddl = join([hder, objs, inits, goals, ")\n"],
                     "\n", and_marker=False)
         with open(filename, "w", encoding="utf-8") as f:
             f.write(str(pddl))
             print(f"Problem PDDL written to {filename}.")
 
-    @staticmethod
-    def _generate_header(name="somedomain"):
+    def _generate_header_domain(self):
+        cls = self.__class__
+        while cls.__bases__[0] != Domain:
+            cls = cls.__bases__[0]
+        name = cls.__name__.lower().replace("domain", "")
         return f"(define\n\t(domain {name})"
 
-    @staticmethod
-    def _generate_header_prob(name="someproblem"):
-        return f"(define\n\t(problem {name})"
+    def _generate_header_prob(self):
+        cls = self.__class__
+        if cls.__bases__[0] == Domain:
+            raise RuntimeError("Unable to generate the problem header. "
+                               "Call `generate_problem_pddl` from an instance "
+                               "of a subclassed Domain.")
+        domain_name = cls.__bases__[0].__name__.lower().replace("domain", "")
+        problem_name = cls.__name__.lower().replace("problem", "")
+        return f"(define\n\t(problem {problem_name})" + "\n\t" + f"(:domain {domain_name})"
 
     @staticmethod
     def _generate_requirements():
@@ -232,6 +243,7 @@ def action(*Types):
             # Final
             actn = [action_name, repre, precond, effect, "\t)"]
             actn = join(actn, "\n", False)
+            actn = actn.replace('_', '-')
 
             return actn
 
@@ -272,7 +284,7 @@ def predicate(*Types) -> str:
             repr1 = []
             for param, Class in zip(params, Types):
                 param_name, _ = param
-                repr1.append(f"?{param_name.replace('_', '-')} - {Class.__name__.lower()}")
+                repr1.append(f"?{param_name} - {Class.__name__.lower()}")
             repr1 = " ".join(repr1)
             repr1 = f"({func_name} {repr1})"
 
@@ -282,7 +294,7 @@ def predicate(*Types) -> str:
             repr2 = f"({func_name} {repr2})"
 
             # Representation 3 (in :init and :goal)
-            args = [str(arg) for arg in args]
+            args = [str(arg).replace('_', '-') for arg in args]
             params3 = "(" + " ".join([func_name, *args]) + ")"
 
             return PDDLString(repr1) + " | " + PDDLString(repr2) + " | " + PDDLString(params3)
