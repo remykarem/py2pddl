@@ -46,7 +46,7 @@ pip install git+https://github.com/remykarem/py2pddl#egg=py2pddl
 
 We will use the following problem:
 
-![pddl/aircargo.png](pddl/aircargoproblem.png)
+![pddl/aircargo.png](pddl/aircargo.png)
 
 ### 1. Set up boilerplate
 
