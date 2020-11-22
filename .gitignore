@@ -3,4 +3,5 @@ __pycache__
 .vscode
 *.sas
 sas_plan
-*.pddl
+domain.pddl
+problem.pddl
