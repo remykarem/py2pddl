@@ -15,10 +15,21 @@ The library is written with these considerations:
 
 ---
 
+* [Features](##features)
 * [Requirements](##requirements)
 * [Installation](##installation)
 * [Quick start in 5 steps](##quick-start-in-5-steps)
+* [Examples](##examples)
 * [Resources](##resources)
+
+## Features
+
+This library allows you to define:
+
+* Domain: requirements (strips and typing), types, predicates, action
+* Problem: objects, init, goal
+
+Negation is done using the `~` operator.
 
 ## Requirements
 
@@ -35,7 +46,7 @@ pip install git+https://github.com/remykarem/py2pddl#egg=py2pddl
 
 We will use the following problem:
 
-![aircargoproblem.png](aircargoproblem.png)
+![pddl/aircargo.png](pddl/aircargoproblem.png)
 
 ### 1. Set up boilerplate
 
@@ -138,11 +149,9 @@ class AirCargoProblem(AirCargoDomain):
 
     def __init__(self):
         super().__init__()
-        self.cargos = create_objs(
-            AirCargoDomain.Cargo, [1, 2], prefix_key=None, prefix_value="c")
-        self.planes = create_objs(
-            AirCargoDomain.Plane, [1, 2], prefix_key=None, prefix_value="p")
-        self.airports = create_objs(AirCargoDomain.Airport, ["sfo", "jfk"])
+        self.cargos = AirCargoDomain.Cargo.create_objs([1, 2], prefix="c")
+        self.planes = AirCargoDomain.Plane.create_objs([1, 2], prefix="p")
+        self.airports = AirCargoDomain.Airport.create_objs(["sfo", "jfk"])
 
     @init
     def init(self):
@@ -273,7 +282,19 @@ p.generate_problem_pddl(
     goal={"cargo": "C2"})
 ```
 
+## Examples
+
+Below are several example domains. The respective Python files, PDDL files and sas_plan files can be found in the `pddl/` folder.
+
+* [Logistics](https://github.com/pellierd/pddl4j/wiki/Logistics:-a-simple-running-example)
+* [Blocks world](https://en.wikipedia.org/wiki/Blocks_world)
+* [Aircargo](pddl/aircargoproblem.png)
+
 ## Resources
 
 * [PDDL4J](https://github.com/pellierd/pddl4j)
 * [Fast Downward](https://github.com/aibasel/downward)
+* [Planning Wiki](https://planning.wiki)
+* [IPC 2018 domains](https://ipc2018-classical.bitbucket.io/domains.html)
+* [Classical domains](https://github.com/AI-Planning/classical-domains)
+* [Planning domains](http://planning.domains)
