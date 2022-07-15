@@ -44,13 +44,13 @@ pip install git+https://github.com/remykarem/py2pddl#egg=py2pddl
 
 ## Quick start in 5 steps
 
-We will use the following problem:
+We will use the following air cargo problem:
 
 ![pddl/aircargo.png](pddl/aircargo.png)
 
 ### 1. Set up boilerplate
 
-Run
+Create an `aircargo.py` file by running:
 
 ```text
 python -m py2pddl.init aircargo.py
@@ -67,7 +67,7 @@ Actions (separated by space): load unload fly
 
 ### 2. Define the domain
 
-In the `aircargo.py` source file, there is a class called `AirCargoDomain`.
+In the `aircargo.py` source file, the `AirCargoDomain` class has been created.
 The structure of the class is similar to how a PDDL domain should be defined.
 
 * Name of the domain is the name of the Python class (`AirCargoDomain`).
@@ -132,7 +132,7 @@ are the types of the respective arguments.
 
 ### 3. Define the problem
 
-In the bottom part of `aircargo.py`, there is another class called `AirCargoProblem`.
+At the bottom part of `aircargo.py`, there is another class called `AirCargoProblem`.
 Again, the structure of the class is similar to how a PDDL problem should be defined.
 
 * Name of the domain is the name of the Python class (`AirCargoProblem`).
@@ -181,7 +181,7 @@ the 2 instance methods.
 
 ### 4. Parse
 
-* To generate the PDDL files from the command line, run
+* Generate the PDDL files from the command line by runnning
 
     ```text
     python -m py2pddl.parse aircargo.py
@@ -199,11 +199,11 @@ and problem PDDL files separately. These methods were inherited from
 `Domain`.
 
     ```python
-    from flying import GridCarProblem
+    from aircargo import AirCargoProblem
 
-    p = AirCargoProblem()
-    p.generate_domain_pddl()
-    p.generate_problem_pddl()
+    problem = AirCargoProblem()
+    problem.generate_domain_pddl()
+    problem.generate_problem_pddl()
     ```
 
 Here is the generated `domain.pddl` file.
