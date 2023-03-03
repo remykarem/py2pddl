@@ -298,3 +298,17 @@ Below are several example domains. The respective Python files, PDDL files and s
 * [IPC 2018 domains](https://ipc2018-classical.bitbucket.io/domains.html)
 * [Classical domains](https://github.com/AI-Planning/classical-domains)
 * [Planning domains](http://planning.domains)
+
+---
+
+If you use this software for your work, please cite us as follows:
+
+```
+@article{bin_Karim_py2pddl_2020,
+author = {bin Karim, Raimi},
+journal = {https://github.com/remykarem/py2pddl},
+month = {11},
+title = {{py2pddl}},
+year = {2020}
+}
+```
